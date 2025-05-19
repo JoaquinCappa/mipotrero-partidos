@@ -26,12 +26,19 @@
 
   <main>
     <section id="login">
-      <h2>Iniciar sesión</h2>
-      <input type="email" id="email" placeholder="Email" /><br /><br />
-      <input type="password" id="password" placeholder="Contraseña" /><br /><br />
-      <button onclick="login()">Entrar</button>
-      <button onclick="register()">Registrarse</button>
-    </section>
+  <h2>Registrarse</h2>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Contraseña" />
+  <button onclick="register()">Registrarse</button>
+  <p>¿Ya tenés cuenta? <a href="#" onclick="mostrarLogin()">Entrar</a></p>
+</section>
+
+<section id="login-existente" style="display:none">
+  <h2>Iniciar sesión</h2>
+  <input type="email" id="email2" placeholder="Email" />
+  <input type="password" id="password2" placeholder="Contraseña" />
+  <button onclick="login()">Entrar</button>
+</section>
 
     <section id="explorar" style="display:none">
       <h2>Partidos disponibles</h2>
