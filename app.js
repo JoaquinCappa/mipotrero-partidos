@@ -47,10 +47,17 @@ window.login = function () {
 window.register = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const email2 = document.getElementById("email").value;
+  const password2 = document.getElementById("password").value;
   createUserWithEmailAndPassword(auth, email, password)
     .then(() => mostrarContenido())
     .catch(err => alert("Error: " + err.message));
 };
+function mostrarLogin() {
+  document.getElementById("login").style.display = "none";
+  document.getElementById("login-existente").style.display = "block";
+}
+
 
 window.logout = function () {
   signOut(auth).then(() => location.reload());
