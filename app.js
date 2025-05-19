@@ -107,19 +107,30 @@ window.crearPartido = function () {
 function cargarPartidos() {
   const lista = document.getElementById("lista-partidos");
   lista.innerHTML = "";
-  getDocs(collection(db, "partidos")).then(snapshot => {
-    snapshot.forEach(docSnap => {
-      const p = docSnap.data();
+
+  const hoy = new Date();
+
+  db.collection("partidos").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const p = doc.data();
+      const fechaPartido = new Date(p.fecha);
+
+      if (fechaPartido < hoy) return; // 🔥 Saltar si ya pasó
+
       const div = document.createElement("div");
       div.className = "partido";
-      div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}<br>
-        ${p.jugadores.length} / ${p.cupos} jugadores<br>`;
+      div.innerHTML = `
+        <strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}<br>
+        ${p.jugadores.length} / ${p.cupos} jugadores<br>
+      `;
+
       if (!p.jugadores.includes(auth.currentUser.email)) {
         const btn = document.createElement("button");
         btn.textContent = "Unirse";
-        btn.onclick = () => unirseAPartido(docSnap.id, p);
+        btn.onclick = () => unirseAPartido(doc.id, p);
         div.appendChild(btn);
       }
+
       lista.appendChild(div);
     });
   });
