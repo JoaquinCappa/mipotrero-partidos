@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mi Potrero</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <header>
     <h1>Organiza partidos de fútbol con Mi Potrero</h1>
     <nav>
-      <button onclick="showSection('explorar')">Explorar</button>
-      <button onclick="showSection('crear')">Crear</button>
-      <button onclick="showSection('mios')">Mis Partidos</button>
-      <button onclick="logout()">Salir</button>
+      <button id="btnExplorar">Explorar</button>
+      <button id="btnCrear">Crear</button>
+      <button id="btnMios">Mis Partidos</button>
+      <button id="btnLogout">Salir</button>
     </nav>
   </header>
 
@@ -22,8 +25,8 @@
       <h2>Iniciar sesión</h2>
       <input type="email" id="email" placeholder="Email" />
       <input type="password" id="password" placeholder="Contraseña" />
-      <button onclick="login()">Entrar</button>
-      <button onclick="register()">Registrarse</button>
+      <button id="btnLogin">Entrar</button>
+      <button id="btnRegister">Registrarse</button>
     </section>
 
     <section id="explorar" style="display:none">
@@ -37,7 +40,7 @@
       <input type="datetime-local" id="fecha" />
       <input type="number" id="cupos" placeholder="Cantidad de jugadores" />
       <textarea id="descripcion" placeholder="Descripción"></textarea>
-      <button onclick="crearPartido()">Crear</button>
+      <button id="btnCrearPartido">Crear</button>
     </section>
 
     <section id="mios" style="display:none">
@@ -46,8 +49,8 @@
     </section>
   </main>
 
-  <!-- IMPORTANTE: script con type module -->
-  <script type="module" src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
+
 
