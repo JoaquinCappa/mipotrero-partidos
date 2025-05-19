@@ -1,52 +1,37 @@
 // app.js (modo módulo)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  updateDoc,
-  doc,
-} from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-// Configuración de Firebase (tuya)
+// Tu config Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyACVghZ9he6Wcf-nA-Vn35VIPxPOkhoIok",
-  authDomain: "mi-potrero.firebaseapp.com",
-  projectId: "mi-potrero",
-  storageBucket: "mi-potrero.firebasestorage.app",
-  messagingSenderId: "36934575528",
-  appId: "1:36934575528:web:686fa0df3310caa494299d",
-  measurementId: "G-MJ31HJ401D",
+  apiKey: "tu-api-key",
+  authDomain: "tu-authDomain",
+  projectId: "tu-projectId",
+  storageBucket: "tu-storageBucket",
+  messagingSenderId: "tu-messagingSenderId",
+  appId: "tu-appId",
+  measurementId: "tu-measurementId"
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Funciones
-
-async function login() {
+// Ejemplo login
+function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    mostrarContenido();
-  } catch (err) {
-    alert("Error: " + err.message);
-  }
+  signInWithEmailAndPassword(auth, email, password)
+    .then(userCredential => {
+      // logged in
+    })
+    .catch(error => {
+      alert(error.message);
+    });
 }
+
 
 async function register() {
   const email = document.getElementById("email").value;
