@@ -111,7 +111,7 @@ window.function crearPartido() {
 
   const partido = {
     lugar,
-    fecha: fecha.toISOString(), // Guardado en formato estándar
+    fecha: fecha.toISOString(), // guardamos en formato ISO
     cupos,
     descripcion,
     creador: auth.currentUser.email,
@@ -122,8 +122,11 @@ window.function crearPartido() {
     alert("Partido creado!");
     showSection("explorar");
     cargarPartidos();
+  }).catch(error => {
+    alert("Error al crear partido: " + error.message);
   });
 }
+
 
 
 // Cargar partidos disponibles
