@@ -4,9 +4,20 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  onAuthStateChanged, // ← ESTA LÍNEA ES LA IMPORTANTE
+  onAuthStateChanged, // ← ESTE ES EL QUE FALTABA
   signOut
 } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -53,11 +64,12 @@ window.showSection = function (id) {
 };
 
 // Estado de sesión
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, (user) => {
   if (user) {
     mostrarContenido();
   }
 });
+
 
 // Mostrar contenido principal
 function mostrarContenido() {
