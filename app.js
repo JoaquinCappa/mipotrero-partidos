@@ -1,53 +1,60 @@
-// app.js (modo módulo)
-
+// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-// Tu config Firebase
+// Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "tu-api-key",
-  authDomain: "tu-authDomain",
-  projectId: "tu-projectId",
-  storageBucket: "tu-storageBucket",
-  messagingSenderId: "tu-messagingSenderId",
-  appId: "tu-appId",
-  measurementId: "tu-measurementId"
+  apiKey: "AIzaSyACVghZ9he6Wcf-nA-Vn35VIPxPOkhoIok",
+  authDomain: "mi-potrero.firebaseapp.com",
+  projectId: "mi-potrero",
+  storageBucket: "mi-potrero.appspot.com",
+  messagingSenderId: "36934575528",
+  appId: "1:36934575528:web:686fa0df3310caa494299d",
+  measurementId: "G-MJ31HJ401D"
 };
 
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Ejemplo login
-function login() {
+// Funciones de login, registro y logout
+window.login = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   signInWithEmailAndPassword(auth, email, password)
-    .then(userCredential => {
-      // logged in
-    })
-    .catch(error => {
-      alert(error.message);
-    });
-}
+    .then(() => mostrarContenido())
+    .catch(err => alert("Error: " + err.message));
+};
 
-
-async function register() {
+window.register = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    mostrarContenido();
-  } catch (err) {
-    alert("Error: " + err.message);
-  }
-}
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => mostrarContenido())
+    .catch(err => alert("Error: " + err.message));
+};
 
-function logout() {
+window.logout = function () {
   signOut(auth).then(() => location.reload());
-}
+};
 
+// Mostrar secciones
+window.showSection = function (id) {
+  ["explorar", "crear", "mios"].forEach(sec => {
+    document.getElementById(sec).style.display = sec === id ? "block" : "none";
+  });
+};
+
+// Estado de sesión
+onAuthStateChanged(auth, user => {
+  if (user) {
+    mostrarContenido();
+  }
+});
+
+// Mostrar contenido principal
 function mostrarContenido() {
   document.getElementById("login").style.display = "none";
   document.getElementById("explorar").style.display = "block";
@@ -55,48 +62,29 @@ function mostrarContenido() {
   cargarMisPartidos();
 }
 
-function showSection(id) {
-  ["explorar", "crear", "mios"].forEach((sec) => {
-    document.getElementById(sec).style.display = sec === id ? "block" : "none";
-  });
-}
-
-async function crearPartido() {
-  const lugar = document.getElementById("lugar").value.trim();
-  const fecha = document.getElementById("fecha").value;
-  const cupos = parseInt(document.getElementById("cupos").value);
-  const descripcion = document.getElementById("descripcion").value.trim();
-
-  if (!lugar || !fecha || !cupos || !descripcion) {
-    alert("Por favor completa todos los campos");
-    return;
-  }
-
+// Crear partido
+window.crearPartido = function () {
   const partido = {
-    lugar,
-    fecha,
-    cupos,
-    descripcion,
+    lugar: document.getElementById("lugar").value,
+    fecha: document.getElementById("fecha").value,
+    cupos: parseInt(document.getElementById("cupos").value),
+    descripcion: document.getElementById("descripcion").value,
     creador: auth.currentUser.email,
-    jugadores: [auth.currentUser.email],
+    jugadores: [auth.currentUser.email]
   };
-
-  try {
-    await addDoc(collection(db, "partidos"), partido);
+  addDoc(collection(db, "partidos"), partido).then(() => {
     alert("Partido creado!");
     showSection("explorar");
     cargarPartidos();
-  } catch (error) {
-    alert("Error al guardar partido: " + error.message);
-  }
-}
+  });
+};
 
-async function cargarPartidos() {
+// Cargar partidos disponibles
+function cargarPartidos() {
   const lista = document.getElementById("lista-partidos");
   lista.innerHTML = "";
-  try {
-    const querySnapshot = await getDocs(collection(db, "partidos"));
-    querySnapshot.forEach((docSnap) => {
+  getDocs(collection(db, "partidos")).then(snapshot => {
+    snapshot.forEach(docSnap => {
       const p = docSnap.data();
       const div = document.createElement("div");
       div.className = "partido";
@@ -110,58 +98,38 @@ async function cargarPartidos() {
       }
       lista.appendChild(div);
     });
-  } catch (error) {
-    console.error("Error al cargar partidos:", error);
-  }
+  });
 }
 
-async function cargarMisPartidos() {
+// Cargar mis partidos
+function cargarMisPartidos() {
   const cont = document.getElementById("mis-partidos");
   cont.innerHTML = "";
-  try {
-    const q = query(
-      collection(db, "partidos"),
-      where("jugadores", "array-contains", auth.currentUser.email)
-    );
-    const snapshot = await getDocs(q);
-    snapshot.forEach((docSnap) => {
+  const partidosRef = collection(db, "partidos");
+  const q = query(partidosRef, where("jugadores", "array-contains", auth.currentUser.email));
+  getDocs(q).then(snapshot => {
+    snapshot.forEach(docSnap => {
       const p = docSnap.data();
       const div = document.createElement("div");
       div.className = "partido";
       div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}`;
       cont.appendChild(div);
     });
-  } catch (error) {
-    console.error("Error al cargar mis partidos:", error);
-  }
+  });
 }
 
-async function unirseAPartido(id, partido) {
+// Unirse a un partido
+function unirseAPartido(id, partido) {
   if (partido.jugadores.length >= partido.cupos) {
     alert("El partido ya está lleno");
     return;
   }
-  try {
-    partido.jugadores.push(auth.currentUser.email);
-    const partidoRef = doc(db, "partidos", id);
-    await updateDoc(partidoRef, { jugadores: partido.jugadores });
+  partido.jugadores.push(auth.currentUser.email);
+  const docRef = doc(db, "partidos", id);
+  updateDoc(docRef, { jugadores: partido.jugadores }).then(() => {
     alert("Te uniste al partido");
     cargarPartidos();
     cargarMisPartidos();
-  } catch (error) {
-    alert("Error al unirse al partido: " + error.message);
-  }
+  });
 }
-
-// Detectar cambios de autenticación
-onAuthStateChanged(auth, (user) => {
-  if (user) mostrarContenido();
-});
-
-// Exponer funciones al scope global para que el HTML pueda llamarlas
-window.showSection = showSection;
-window.login = login;
-window.logout = logout;
-window.register = register;
-window.crearPartido = crearPartido;
 
