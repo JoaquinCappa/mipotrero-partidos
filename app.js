@@ -87,21 +87,44 @@ function mostrarContenido() {
 }
 
 // Crear partido
-window.crearPartido = function () {
+window.function crearPartido() {
+  const lugar = document.getElementById("lugar").value;
+  const fechaInput = document.getElementById("fecha").value;
+  const cupos = parseInt(document.getElementById("cupos").value);
+  const descripcion = document.getElementById("descripcion").value;
+
+  const fecha = new Date(fechaInput);
+  const hoy = new Date();
+  const maxFecha = new Date();
+  maxFecha.setDate(hoy.getDate() + 30); // Máximo 30 días en el futuro
+
+  // Validaciones
+  if (fecha < hoy) {
+    alert("No podés crear partidos en fechas pasadas.");
+    return;
+  }
+
+  if (fecha > maxFecha) {
+    alert("No podés crear partidos con más de 30 días de anticipación.");
+    return;
+  }
+
   const partido = {
-    lugar: document.getElementById("lugar").value,
-    fecha: document.getElementById("fecha").value,
-    cupos: parseInt(document.getElementById("cupos").value),
-    descripcion: document.getElementById("descripcion").value,
+    lugar,
+    fecha: fecha.toISOString(), // Guardado en formato estándar
+    cupos,
+    descripcion,
     creador: auth.currentUser.email,
     jugadores: [auth.currentUser.email]
   };
-  addDoc(collection(db, "partidos"), partido).then(() => {
+
+  db.collection("partidos").add(partido).then(() => {
     alert("Partido creado!");
     showSection("explorar");
     cargarPartidos();
   });
-};
+}
+
 
 // Cargar partidos disponibles
 function cargarPartidos() {
