@@ -20,34 +20,34 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Funciones de autenticación
-window.login = () => {
+// Asumo que ya importaste y configuraste Firebase antes
+
+window.showSection = function(id) {
+  ["explorar", "crear", "mios"].forEach(sec => {
+    document.getElementById(sec).style.display = sec === id ? "block" : "none";
+  });
+};
+
+window.login = function() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  signInWithEmailAndPassword(auth, email, password)
+  auth.signInWithEmailAndPassword(email, password)
     .then(() => mostrarContenido())
     .catch(err => alert("Error: " + err.message));
 };
 
-window.register = () => {
+window.register = function() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  createUserWithEmailAndPassword(auth, email, password)
+  auth.createUserWithEmailAndPassword(email, password)
     .then(() => mostrarContenido())
     .catch(err => alert("Error: " + err.message));
 };
 
-window.logout = () => {
-  signOut(auth).then(() => location.reload());
+window.logout = function() {
+  auth.signOut().then(() => location.reload());
 };
 
-// Detectar cambios en el estado de autenticación
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    mostrarContenido();
-  }
-});
-
-// Mostrar contenido tras login
 function mostrarContenido() {
   document.getElementById("login").style.display = "none";
   document.getElementById("explorar").style.display = "block";
@@ -55,101 +55,70 @@ function mostrarContenido() {
   cargarMisPartidos();
 }
 
-// Cambiar de sección
-window.showSection = (id) => {
-  ["explorar", "crear", "mios"].forEach(sec => {
-    document.getElementById(sec).style.display = sec === id ? "block" : "none";
-  });
-};
-
-// Crear partido
-window.crearPartido = async () => {
-  const lugar = document.getElementById("lugar").value;
-  const fecha = document.getElementById("fecha").value;
-  const cupos = parseInt(document.getElementById("cupos").value);
-  const descripcion = document.getElementById("descripcion").value;
-  const creador = auth.currentUser.email;
-
-  if (!lugar || !fecha || !cupos || !descripcion) {
-    alert("Completa todos los campos");
-    return;
-  }
-
+window.crearPartido = function() {
   const partido = {
-    lugar,
-    fecha,
-    cupos,
-    descripcion,
-    creador,
-    jugadores: [creador]
+    lugar: document.getElementById("lugar").value,
+    fecha: document.getElementById("fecha").value,
+    cupos: parseInt(document.getElementById("cupos").value),
+    descripcion: document.getElementById("descripcion").value,
+    creador: auth.currentUser.email,
+    jugadores: [auth.currentUser.email]
   };
-
-  try {
-    await addDoc(collection(db, "partidos"), partido);
+  db.collection("partidos").add(partido).then(() => {
     alert("Partido creado!");
     showSection("explorar");
     cargarPartidos();
-  } catch (error) {
-    alert("Error creando partido: " + error.message);
-  }
+  });
 };
 
-// Cargar partidos disponibles
-async function cargarPartidos() {
+function cargarPartidos() {
   const lista = document.getElementById("lista-partidos");
   lista.innerHTML = "";
-  const snapshot = await getDocs(collection(db, "partidos"));
-
-  snapshot.forEach(docSnap => {
-    const p = docSnap.data();
-    const div = document.createElement("div");
-    div.className = "partido";
-    div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}<br>
-      ${p.jugadores.length} / ${p.cupos} jugadores<br>`;
-
-    if (!p.jugadores.includes(auth.currentUser.email)) {
-      const btn = document.createElement("button");
-      btn.textContent = "Unirse";
-      btn.onclick = () => unirseAPartido(docSnap.id, p);
-      div.appendChild(btn);
-    }
-
-    lista.appendChild(div);
+  db.collection("partidos").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const p = doc.data();
+      const div = document.createElement("div");
+      div.className = "partido";
+      div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}<br>
+        ${p.jugadores.length} / ${p.cupos} jugadores<br>`;
+      if (!p.jugadores.includes(auth.currentUser.email)) {
+        const btn = document.createElement("button");
+        btn.textContent = "Unirse";
+        btn.onclick = () => unirseAPartido(doc.id, p);
+        div.appendChild(btn);
+      }
+      lista.appendChild(div);
+    });
   });
 }
 
-// Cargar partidos donde participa el usuario
-async function cargarMisPartidos() {
+function cargarMisPartidos() {
   const cont = document.getElementById("mis-partidos");
   cont.innerHTML = "";
-
-  const q = query(collection(db, "partidos"), where("jugadores", "array-contains", auth.currentUser.email));
-  const snapshot = await getDocs(q);
-
-  snapshot.forEach(docSnap => {
-    const p = docSnap.data();
-    const div = document.createElement("div");
-    div.className = "partido";
-    div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}`;
-    cont.appendChild(div);
+  db.collection("partidos").where("jugadores", "array-contains", auth.currentUser.email).get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const p = doc.data();
+      const div = document.createElement("div");
+      div.className = "partido";
+      div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}`;
+      cont.appendChild(div);
+    });
   });
 }
 
-// Unirse a un partido
-async function unirseAPartido(id, partido) {
+function unirseAPartido(id, partido) {
   if (partido.jugadores.length >= partido.cupos) {
     alert("El partido ya está lleno");
     return;
   }
-
   partido.jugadores.push(auth.currentUser.email);
-
-  try {
-    await updateDoc(doc(db, "partidos", id), { jugadores: partido.jugadores });
+  db.collection("partidos").doc(id).update({ jugadores: partido.jugadores }).then(() => {
     alert("Te uniste al partido");
     cargarPartidos();
     cargarMisPartidos();
-  } catch (error) {
-    alert("Error al unirse: " + error.message);
-  }
+  });
 }
+
+auth.onAuthStateChanged(user => {
+  if (user) mostrarContenido();
+});
