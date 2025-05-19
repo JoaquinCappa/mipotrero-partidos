@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Potrero</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Organiza partidos de fútbol con Mi Potrero</h1>
+    <nav>
+      <button onclick="showSection('explorar')">Explorar</button>
+      <button onclick="showSection('crear')">Crear</button>
+      <button onclick="showSection('mios')">Mis Partidos</button>
+      <button onclick="logout()">Salir</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="login">
+      <h2>Iniciar sesión</h2>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Contraseña" />
+      <button onclick="login()">Entrar</button>
+      <button onclick="register()">Registrarse</button>
+    </section>
+
+    <section id="explorar" style="display:none">
+      <h2>Partidos disponibles</h2>
+      <div id="lista-partidos"></div>
+    </section>
+
+    <section id="crear" style="display:none">
+      <h2>Crear Partido</h2>
+      <input type="text" id="lugar" placeholder="Lugar" />
+      <input type="datetime-local" id="fecha" />
+      <input type="number" id="cupos" placeholder="Cantidad de jugadores" />
+      <textarea id="descripcion" placeholder="Descripción"></textarea>
+      <button onclick="crearPartido()">Crear</button>
+    </section>
+
+    <section id="mios" style="display:none">
+      <h2>Mis Partidos</h2>
+      <div id="mis-partidos"></div>
+    </section>
+  </main>
+
+  <!-- Usamos módulo ES6 para app.js -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
