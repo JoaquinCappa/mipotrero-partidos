@@ -4,29 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mi Potrero</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    /* Estilos básicos */
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; }
+    header nav button { margin-right: 10px; }
+    section { margin-top: 20px; }
+    .partido { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
   <header>
     <h1>Organiza partidos de fútbol con Mi Potrero</h1>
     <nav>
-      <button id="btnExplorar">Explorar</button>
-      <button id="btnCrear">Crear</button>
-      <button id="btnMios">Mis Partidos</button>
-      <button id="btnLogout">Salir</button>
+      <button onclick="showSection('explorar')">Explorar</button>
+      <button onclick="showSection('crear')">Crear</button>
+      <button onclick="showSection('mios')">Mis Partidos</button>
+      <button onclick="logout()">Salir</button>
     </nav>
   </header>
 
   <main>
     <section id="login">
       <h2>Iniciar sesión</h2>
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Contraseña" />
-      <button id="btnLogin">Entrar</button>
-      <button id="btnRegister">Registrarse</button>
+      <input type="email" id="email" placeholder="Email" /><br /><br />
+      <input type="password" id="password" placeholder="Contraseña" /><br /><br />
+      <button onclick="login()">Entrar</button>
+      <button onclick="register()">Registrarse</button>
     </section>
 
     <section id="explorar" style="display:none">
@@ -36,11 +39,11 @@
 
     <section id="crear" style="display:none">
       <h2>Crear Partido</h2>
-      <input type="text" id="lugar" placeholder="Lugar" />
-      <input type="datetime-local" id="fecha" />
-      <input type="number" id="cupos" placeholder="Cantidad de jugadores" />
-      <textarea id="descripcion" placeholder="Descripción"></textarea>
-      <button id="btnCrearPartido">Crear</button>
+      <input type="text" id="lugar" placeholder="Lugar" /><br /><br />
+      <input type="datetime-local" id="fecha" /><br /><br />
+      <input type="number" id="cupos" placeholder="Cantidad de jugadores" /><br /><br />
+      <textarea id="descripcion" placeholder="Descripción"></textarea><br /><br />
+      <button onclick="crearPartido()">Crear</button>
     </section>
 
     <section id="mios" style="display:none">
@@ -49,8 +52,6 @@
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
-
-
