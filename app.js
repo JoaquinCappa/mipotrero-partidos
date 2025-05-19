@@ -1,177 +1,155 @@
-// app.js
+// Importaciones Firebase modular v11
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  doc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-// Tu configuración de Firebase
+// Config Firebase
 const firebaseConfig = {
-  apiKey:    "AIzaSyACVghZ9he6Wcf-nA-Vn35VIPxPOkhoIok",
-  authDomain:"mi-potrero.firebaseapp.com",
+  apiKey: "AIzaSyACVghZ9he6Wcf-nA-Vn35VIPxPOkhoIok",
+  authDomain: "mi-potrero.firebaseapp.com",
   projectId: "mi-potrero",
   storageBucket: "mi-potrero.firebasestorage.app",
   messagingSenderId: "36934575528",
-  appId:     "1:36934575528:web:686fa0df3310caa494299d",
+  appId: "1:36934575528:web:686fa0df3310caa494299d",
   measurementId: "G-MJ31HJ401D",
 };
 
-// Inicialización
-const app       = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth      = getAuth(app);
-const db        = getFirestore(app);
+// Inicializo Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// --- Autenticación ---
-
-export async function login() {
+// Funciones de autenticación
+window.login = () => {
   const email = document.getElementById("email").value;
-  const pass  = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-    mostrarContenido();
-  } catch (e) {
-    alert("Error: " + e.message);
-  }
-}
+  const password = document.getElementById("password").value;
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => mostrarContenido())
+    .catch(err => alert("Error: " + err.message));
+};
 
-export async function register() {
+window.register = () => {
   const email = document.getElementById("email").value;
-  const pass  = document.getElementById("password").value;
-  try {
-    await createUserWithEmailAndPassword(auth, email, pass);
-    mostrarContenido();
-  } catch (e) {
-    alert("Error: " + e.message);
-  }
-}
+  const password = document.getElementById("password").value;
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => mostrarContenido())
+    .catch(err => alert("Error: " + err.message));
+};
 
-export async function logout() {
-  await signOut(auth);
-  location.reload();
-}
+window.logout = () => {
+  signOut(auth).then(() => location.reload());
+};
 
-onAuthStateChanged(auth, user => {
+// Detectar cambios en el estado de autenticación
+onAuthStateChanged(auth, (user) => {
   if (user) {
     mostrarContenido();
-  } else {
-    document.getElementById("login").style.display = "block";
-    ["explorar","crear","mios"].forEach(s =>
-      document.getElementById(s).style.display = "none"
-    );
   }
 });
 
-// --- UI y Firestore ---
-
+// Mostrar contenido tras login
 function mostrarContenido() {
-  document.getElementById("login").style.display    = "none";
+  document.getElementById("login").style.display = "none";
   document.getElementById("explorar").style.display = "block";
   cargarPartidos();
   cargarMisPartidos();
 }
 
-export function showSection(id) {
-  ["explorar","crear","mios"].forEach(sec =>
-    document.getElementById(sec).style.display = sec === id ? "block" : "none"
-  );
-}
+// Cambiar de sección
+window.showSection = (id) => {
+  ["explorar", "crear", "mios"].forEach(sec => {
+    document.getElementById(sec).style.display = sec === id ? "block" : "none";
+  });
+};
 
-export async function crearPartido() {
+// Crear partido
+window.crearPartido = async () => {
+  const lugar = document.getElementById("lugar").value;
+  const fecha = document.getElementById("fecha").value;
+  const cupos = parseInt(document.getElementById("cupos").value);
+  const descripcion = document.getElementById("descripcion").value;
+  const creador = auth.currentUser.email;
+
+  if (!lugar || !fecha || !cupos || !descripcion) {
+    alert("Completa todos los campos");
+    return;
+  }
+
   const partido = {
-    lugar:       document.getElementById("lugar").value,
-    fecha:       document.getElementById("fecha").value,
-    cupos:       parseInt(document.getElementById("cupos").value),
-    descripcion: document.getElementById("descripcion").value,
-    creador:     auth.currentUser.email,
-    jugadores:   [auth.currentUser.email]
+    lugar,
+    fecha,
+    cupos,
+    descripcion,
+    creador,
+    jugadores: [creador]
   };
+
   try {
     await addDoc(collection(db, "partidos"), partido);
     alert("Partido creado!");
     showSection("explorar");
     cargarPartidos();
-  } catch (e) {
-    alert("Error creando partido: " + e.message);
+  } catch (error) {
+    alert("Error creando partido: " + error.message);
   }
-}
+};
 
-export async function cargarPartidos() {
+// Cargar partidos disponibles
+async function cargarPartidos() {
   const lista = document.getElementById("lista-partidos");
   lista.innerHTML = "";
-  try {
-    const snap = await getDocs(collection(db, "partidos"));
-    snap.forEach(d => {
-      const p = d.data();
-      const div = document.createElement("div");
-      div.className = "partido";
-      div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>
-                       ${p.descripcion}<br>
-                       ${p.jugadores.length} / ${p.cupos} jugadores<br>`;
-      if (!p.jugadores.includes(auth.currentUser.email)) {
-        const btn = document.createElement("button");
-        btn.textContent = "Unirse";
-        btn.onclick = () => unirseAPartido(d.id, p);
-        div.appendChild(btn);
-      }
-      lista.appendChild(div);
-    });
-  } catch (e) {
-    alert("Error cargando partidos: " + e.message);
-  }
+  const snapshot = await getDocs(collection(db, "partidos"));
+
+  snapshot.forEach(docSnap => {
+    const p = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "partido";
+    div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}<br>
+      ${p.jugadores.length} / ${p.cupos} jugadores<br>`;
+
+    if (!p.jugadores.includes(auth.currentUser.email)) {
+      const btn = document.createElement("button");
+      btn.textContent = "Unirse";
+      btn.onclick = () => unirseAPartido(docSnap.id, p);
+      div.appendChild(btn);
+    }
+
+    lista.appendChild(div);
+  });
 }
 
-export async function cargarMisPartidos() {
+// Cargar partidos donde participa el usuario
+async function cargarMisPartidos() {
   const cont = document.getElementById("mis-partidos");
   cont.innerHTML = "";
-  try {
-    const q    = query(collection(db, "partidos"), where("jugadores", "array-contains", auth.currentUser.email));
-    const snap = await getDocs(q);
-    snap.forEach(d => {
-      const p = d.data();
-      const div = document.createElement("div");
-      div.className = "partido";
-      div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}`;
-      cont.appendChild(div);
-    });
-  } catch (e) {
-    alert("Error cargando mis partidos: " + e.message);
-  }
+
+  const q = query(collection(db, "partidos"), where("jugadores", "array-contains", auth.currentUser.email));
+  const snapshot = await getDocs(q);
+
+  snapshot.forEach(docSnap => {
+    const p = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "partido";
+    div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}`;
+    cont.appendChild(div);
+  });
 }
 
-export async function unirseAPartido(id, partido) {
+// Unirse a un partido
+async function unirseAPartido(id, partido) {
   if (partido.jugadores.length >= partido.cupos) {
     alert("El partido ya está lleno");
     return;
   }
+
   partido.jugadores.push(auth.currentUser.email);
-  const ref = doc(db, "partidos", id);
+
   try {
-    await updateDoc(ref, { jugadores: partido.jugadores });
+    await updateDoc(doc(db, "partidos", id), { jugadores: partido.jugadores });
     alert("Te uniste al partido");
     cargarPartidos();
     cargarMisPartidos();
-  } catch (e) {
-    alert("Error al unirse: " + e.message);
+  } catch (error) {
+    alert("Error al unirse: " + error.message);
   }
-  window.login = login;
-    window.register = register;
-    window.logout = logout;
-    window.showSection = showSection;
-    window.crearPartido = crearPartido;
-
 }
