@@ -34,6 +34,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const partidosCol = collection(db, "partidos");
+const partidosSnapshot = await getDocs(partidosCol);
 
 // Funciones de login, registro y logout
 window.login = function () {
