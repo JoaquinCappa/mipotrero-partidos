@@ -163,11 +163,7 @@ function cargarPartidos() {
         const div = document.createElement("div");
         div.className = "partido";
         const fechaFormateada = fechaPartido.toLocaleString();
-        div.innerHTML = `
-          <strong>${fechaFormateada}</strong> - ${p.lugar}<br>${p.descripcion}<br>
-          ${p.jugadores.length} / ${p.cupos} jugadores<br>
-        `;
-
+        div.innerHTML = `<strong>${fechaFormateada}</strong> - ${p.lugar}<br>${p.descripcion}<br>${p.jugadores.length} / ${p.cupos} jugadores<br>`;
         if (!p.jugadores.includes(auth.currentUser.email)) {
           const btn = document.createElement("button");
           btn.textContent = "Unirse";
