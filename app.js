@@ -49,12 +49,12 @@ window.login = function () {
 window.register = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const email2 = document.getElementById("email").value;
-  const password2 = document.getElementById("password").value;
+
   createUserWithEmailAndPassword(auth, email, password)
     .then(() => mostrarContenido())
     .catch(err => alert("Error: " + err.message));
 };
+
 window.mostrarLogin = function() {
   document.getElementById('login').style.display = 'block';
   document.getElementById('explorar').style.display = 'none';
