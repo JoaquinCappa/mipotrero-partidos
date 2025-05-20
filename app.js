@@ -56,9 +56,12 @@ window.register = function () {
     .catch(err => alert("Error: " + err.message));
 };
 function mostrarLogin() {
-  document.getElementById("login").style.display = "none";
-  document.getElementById("login-existente").style.display = "block";
+  document.getElementById('login').style.display = 'block';
+  document.getElementById('explorar').style.display = 'none';
+  document.getElementById('crear').style.display = 'none';
+  document.getElementById('mios').style.display = 'none';
 }
+
 
 
 window.logout = function () {
@@ -195,4 +198,4 @@ function unirseAPartido(id, partido) {
     cargarMisPartidos();
   });
 }
-
+mostrarLogin();
