@@ -131,7 +131,7 @@ window.crearPartido = function() {
     jugadores: [auth.currentUser.email]
   };
 
-  db.collection("partidos").add(partido).then(() => {
+addDoc(collection(db, "partidos"), partido).then(() => {
     alert("Partido creado!");
     showSection("explorar");
     cargarPartidos();
@@ -149,10 +149,13 @@ function cargarPartidos() {
 
   const hoy = new Date();
 
-  db.collection("partidos").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const p = doc.data();
-      const fechaPartido = new Date(p.fecha);
+  getDocs(partidosCol).then(snapshot => {
+  snapshot.forEach(doc => {
+    console.log(doc.id, doc.data());
+  });
+}).catch(error => {
+  console.error("Error al obtener partidos:", error);
+});
 
       if (fechaPartido < hoy) return; // 🔥 Saltar si ya pasó
 
