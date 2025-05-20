@@ -171,7 +171,7 @@ function cargarPartidos() {
           div.appendChild(btn);
         }
         lista.appendChild(div);
-      });
+      })
     })
     .catch(e => console.error("Error al obtener partidos:", e));
 // Cargar mis partidos
