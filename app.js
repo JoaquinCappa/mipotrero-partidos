@@ -177,7 +177,7 @@ function cargarPartidos() {
 
         lista.appendChild(div);
       });
-    })
+    });
     .catch(e => console.error("Error al obtener partidos:", e));
 }
 
