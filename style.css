@@ -3,8 +3,8 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: #90fc7a;
+  color: #032505;
 }
 header {
   background-color: #00441c;
@@ -22,7 +22,7 @@ nav button {
   color: #00441c;
   border: none;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 main {
   padding: 2em;
@@ -33,7 +33,7 @@ input, textarea {
   width: 100%;
   padding: 0.5em;
   margin: 0.5em 0;
-  border: 1px solid #ccc;
+  border: 1px solid #036100;
   border-radius: 5px;
 }
 button {
@@ -49,7 +49,7 @@ button {
   margin-top: 1em;
 }
 .partido {
-  background-color: white;
+  background-color: #90fc7a;
   padding: 1em;
   margin: 0.5em 0;
   border-radius: 5px;
