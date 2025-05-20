@@ -145,7 +145,6 @@ window.crearPartido = function() {
     })
     .catch(e => alert("Error al crear partido: " + e.message));
 };
-
 // Cargar partidos disponibles
 function cargarPartidos() {
   const lista = document.getElementById("lista-partidos");
