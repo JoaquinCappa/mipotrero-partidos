@@ -77,7 +77,7 @@ window.register = function () {
     .catch((e) => {
       switch (e.code) {
         case 'auth/email-already-in-use':
-          alert("Este email ya está registrado.");
+          alert("Ese email ya está registrado. Iniciá sesión en lugar de registrarte.");
           break;
         case 'auth/invalid-email':
           alert("Email inválido.");
@@ -90,6 +90,7 @@ window.register = function () {
       }
     });
 };
+
 
 // Mostrar login
 window.mostrarLogin = function() {
