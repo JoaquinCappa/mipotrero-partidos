@@ -34,31 +34,48 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const partidosCol = collection(db, "partidos");
+// Registro
+window.register = function() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  console.log("Intentando registrar:", email);
+
+  if (!email || password.length < 6) {
+    alert("Email válido y contraseña mínimo 6 caracteres");
+    return;
+  }
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      console.log("Registro exitoso");
+      mostrarContenido();
+    })
+    .catch(e => {
+      console.error("Error al registrar:", e);
+      alert("Error: " + e.message);
+    });
+};
 
 // Login
 window.login = function() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  if (!email || password.length < 6) {
-    alert("Email válido y contraseña mínimo 6 caracteres");
-    return;
-  }
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => mostrarContenido())
-    .catch(e => alert("Error: " + e.message));
-};
+  console.log("Intentando login con:", email);
 
-// Registro
-window.register = function() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
   if (!email || password.length < 6) {
     alert("Email válido y contraseña mínimo 6 caracteres");
     return;
   }
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(() => mostrarContenido())
-    .catch(e => alert("Error: " + e.message));
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      console.log("Login exitoso");
+      mostrarContenido();
+    })
+    .catch(e => {
+      console.error("Login falló:", e);
+      alert("Error: " + e.message);
+    });
 };
 
 // Mostrar login
@@ -89,6 +106,7 @@ window.showSection = function(id) {
 
 // Estado de sesión
 onAuthStateChanged(auth, user => {
+  console.log("Estado de sesión cambiado:", user);
   if (user) {
     mostrarContenido();
   } else {
