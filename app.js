@@ -174,14 +174,10 @@ function cargarPartidos() {
           btn.onclick = () => unirseAPartido(doc.id, p);
           div.appendChild(btn);
         }
-
         lista.appendChild(div);
       });
     });
     .catch(e => console.error("Error al obtener partidos:", e));
-}
-
-
 // Cargar mis partidos
 function cargarMisPartidos() {
   const cont = document.getElementById("mis-partidos");
