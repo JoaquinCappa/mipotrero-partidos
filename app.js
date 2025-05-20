@@ -92,7 +92,7 @@ function mostrarContenido() {
 }
 
 // Crear partido
-window.window.crearPartido = function() {
+window.crearPartido = function() {
   const lugar = document.getElementById("lugar").value;
   const fechaInput = document.getElementById("fecha").value;
   const cupos = parseInt(document.getElementById("cupos").value);
