@@ -189,8 +189,10 @@ function cargarMisPartidos() {
         div.innerHTML = `<strong>${fechaFormateada}</strong> - ${p.lugar}<br>${p.descripcion}`;
         cont.appendChild(div);
       });
-    });
-}
+    }) // ← cierre de .then
+    .catch(error => console.error("Error al cargar mis partidos:", error)); // Manejo de errores opcional
+} // ← cierre de la función
+
 
 // Unirse a un partido
 window.unirseAPartido = function(id, partido) {
