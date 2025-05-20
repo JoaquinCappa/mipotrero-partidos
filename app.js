@@ -174,6 +174,7 @@ function cargarPartidos() {
       })
     })
     .catch(e => console.error("Error al obtener partidos:", e));
+  }
 // Cargar mis partidos
 function cargarMisPartidos() {
   const cont = document.getElementById("mis-partidos");
