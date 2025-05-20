@@ -4,7 +4,7 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  onAuthStateChanged, // ← ESTE ES EL QUE FALTABA
+  onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
 import {
@@ -18,8 +18,7 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-
-// Configuración de Firebase
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyACVghZ9he6Wcf-nA-Vn35VIPxPOkhoIok",
   authDomain: "mi-potrero.firebaseapp.com",
@@ -30,88 +29,95 @@ const firebaseConfig = {
   measurementId: "G-MJ31HJ401D"
 };
 
-// Inicializar Firebase
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const partidosCol = collection(db, "partidos");
-const partidosSnapshot = await getDocs(partidosCol);
 
-// Funciones de login, registro y logout
-window.login = function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => mostrarContenido())
-    .catch(err => alert("Error: " + err.message));
-};
-
-window.register = function () {
+// Login
+window.login = function() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-
-  console.log("Registro con:", email, password);
-
   if (!email || password.length < 6) {
-    alert("Por favor ingresa un email válido y una contraseña de al menos 6 caracteres.");
+    alert("Email válido y contraseña mínimo 6 caracteres");
     return;
   }
-
-  createUserWithEmailAndPassword(auth, email, password)
+  signInWithEmailAndPassword(auth, email, password)
     .then(() => mostrarContenido())
-    .catch(err => alert("Error: " + err.message));
+    .catch(e => alert("Error: " + e.message));
 };
 
+// Registro
+window.register = function() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  if (!email || password.length < 6) {
+    alert("Email válido y contraseña mínimo 6 caracteres");
+    return;
+  }
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => mostrarContenido())
+    .catch(e => alert("Error: " + e.message));
+};
 
-window.mostrarLogin = function () {
+// Mostrar login
+window.mostrarLogin = function() {
   document.getElementById('login').style.display = 'block';
   document.getElementById('explorar').style.display = 'none';
   document.getElementById('crear').style.display = 'none';
   document.getElementById('mios').style.display = 'none';
 };
 
-
-
-window.logout = function () {
-  signOut(auth).then(() => location.reload());
+// Logout
+window.logout = function() {
+  signOut(auth).then(() => {
+    mostrarLogin();
+  });
 };
 
 // Mostrar secciones
-window.showSection = function (id) {
+window.showSection = function(id) {
   ["explorar", "crear", "mios"].forEach(sec => {
     document.getElementById(sec).style.display = sec === id ? "block" : "none";
   });
 };
 
 // Estado de sesión
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, user => {
   if (user) {
     mostrarContenido();
+  } else {
+    mostrarLogin();
   }
 });
 
-
-// Mostrar contenido principal
+// Mostrar contenido principal tras login
 function mostrarContenido() {
   document.getElementById("login").style.display = "none";
-  document.getElementById("explorar").style.display = "block";
+  showSection("explorar");
   cargarPartidos();
   cargarMisPartidos();
 }
 
 // Crear partido
 window.crearPartido = function() {
-  const lugar = document.getElementById("lugar").value;
+  const lugar = document.getElementById("lugar").value.trim();
   const fechaInput = document.getElementById("fecha").value;
   const cupos = parseInt(document.getElementById("cupos").value);
-  const descripcion = document.getElementById("descripcion").value;
+  const descripcion = document.getElementById("descripcion").value.trim();
+
+  if (!lugar || !fechaInput || isNaN(cupos) || cupos < 1) {
+    alert("Por favor completa todos los campos correctamente");
+    return;
+  }
 
   const fecha = new Date(fechaInput);
   const hoy = new Date();
+  hoy.setHours(0,0,0,0);
   const maxFecha = new Date();
-  maxFecha.setDate(hoy.getDate() + 30); // Máximo 30 días en el futuro
+  maxFecha.setDate(hoy.getDate() + 30);
 
-  // Validaciones
   if (fecha < hoy) {
     alert("No podés crear partidos en fechas pasadas.");
     return;
@@ -124,23 +130,21 @@ window.crearPartido = function() {
 
   const partido = {
     lugar,
-    fecha: fecha.toISOString(), // guardamos en formato ISO
+    fecha: fecha.toISOString(),
     cupos,
     descripcion,
     creador: auth.currentUser.email,
     jugadores: [auth.currentUser.email]
   };
 
-addDoc(collection(db, "partidos"), partido).then(() => {
-    alert("Partido creado!");
-    showSection("explorar");
-    cargarPartidos();
-  }).catch(error => {
-    alert("Error al crear partido: " + error.message);
-  });
-}
-
-
+  addDoc(partidosCol, partido)
+    .then(() => {
+      alert("Partido creado!");
+      showSection("explorar");
+      cargarPartidos();
+    })
+    .catch(e => alert("Error al crear partido: " + e.message));
+};
 
 // Cargar partidos disponibles
 function cargarPartidos() {
@@ -148,55 +152,56 @@ function cargarPartidos() {
   lista.innerHTML = "";
 
   const hoy = new Date();
+  hoy.setHours(0,0,0,0);
 
-  getDocs(partidosCol).then(snapshot => {
-  snapshot.forEach(doc => {
-    console.log(doc.id, doc.data());
-  });
-}).catch(error => {
-  console.error("Error al obtener partidos:", error);
-});
+  getDocs(partidosCol)
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        const fechaPartido = new Date(p.fecha);
+        if (fechaPartido < hoy) return;
 
-      if (fechaPartido < hoy) return; // 🔥 Saltar si ya pasó
+        const div = document.createElement("div");
+        div.className = "partido";
+        const fechaFormateada = fechaPartido.toLocaleString();
+        div.innerHTML = `
+          <strong>${fechaFormateada}</strong> - ${p.lugar}<br>${p.descripcion}<br>
+          ${p.jugadores.length} / ${p.cupos} jugadores<br>
+        `;
 
-      const div = document.createElement("div");
-      div.className = "partido";
-      div.innerHTML = `
-        <strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}<br>
-        ${p.jugadores.length} / ${p.cupos} jugadores<br>
-      `;
+        if (!p.jugadores.includes(auth.currentUser.email)) {
+          const btn = document.createElement("button");
+          btn.textContent = "Unirse";
+          btn.onclick = () => unirseAPartido(doc.id, p);
+          div.appendChild(btn);
+        }
 
-      if (!p.jugadores.includes(auth.currentUser.email)) {
-        const btn = document.createElement("button");
-        btn.textContent = "Unirse";
-        btn.onclick = () => unirseAPartido(doc.id, p);
-        div.appendChild(btn);
-      }
-
-      lista.appendChild(div);
-    });
-  });
+        lista.appendChild(div);
+      });
+    })
+    .catch(e => console.error("Error al obtener partidos:", e));
 }
 
 // Cargar mis partidos
 function cargarMisPartidos() {
   const cont = document.getElementById("mis-partidos");
   cont.innerHTML = "";
-  const partidosRef = collection(db, "partidos");
-  const q = query(partidosRef, where("jugadores", "array-contains", auth.currentUser.email));
-  getDocs(q).then(snapshot => {
-    snapshot.forEach(docSnap => {
-      const p = docSnap.data();
-      const div = document.createElement("div");
-      div.className = "partido";
-      div.innerHTML = `<strong>${p.fecha}</strong> - ${p.lugar}<br>${p.descripcion}`;
-      cont.appendChild(div);
+  const q = query(partidosCol, where("jugadores", "array-contains", auth.currentUser.email));
+  getDocs(q)
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        const div = document.createElement("div");
+        const fechaFormateada = new Date(p.fecha).toLocaleString();
+        div.className = "partido";
+        div.innerHTML = `<strong>${fechaFormateada}</strong> - ${p.lugar}<br>${p.descripcion}`;
+        cont.appendChild(div);
+      });
     });
-  });
 }
 
 // Unirse a un partido
-function unirseAPartido(id, partido) {
+window.unirseAPartido = function(id, partido) {
   if (partido.jugadores.length >= partido.cupos) {
     alert("El partido ya está lleno");
     return;
@@ -208,5 +213,4 @@ function unirseAPartido(id, partido) {
     cargarPartidos();
     cargarMisPartidos();
   });
-}
-mostrarLogin();
+};
