@@ -60,7 +60,7 @@ window.mostrarLogin = function() {
   document.getElementById('explorar').style.display = 'none';
   document.getElementById('crear').style.display = 'none';
   document.getElementById('mios').style.display = 'none';
-}
+};
 
 
 
