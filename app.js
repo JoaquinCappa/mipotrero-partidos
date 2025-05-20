@@ -151,7 +151,7 @@ function cargarPartidos() {
   lista.innerHTML = "";
 
   const hoy = new Date();
-  hoy.setHours(0,0,0,0);
+  hoy.setHours(0, 0, 0, 0);
 
   getDocs(partidosCol)
     .then(snapshot => {
@@ -180,6 +180,7 @@ function cargarPartidos() {
     })
     .catch(e => console.error("Error al obtener partidos:", e));
 }
+
 
 // Cargar mis partidos
 function cargarMisPartidos() {
