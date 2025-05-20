@@ -35,46 +35,59 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const partidosCol = collection(db, "partidos");
 // Registro
-window.register = function() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  console.log("Intentando registrar:", email);
+window.login = function () {
+  const email = document.getElementById("email")?.value.trim();
+  const password = document.getElementById("password")?.value;
 
-  if (!email || password.length < 6) {
-    alert("Email válido y contraseña mínimo 6 caracteres");
-    return;
-  }
-
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      console.log("Registro exitoso");
-      mostrarContenido();
-    })
-    .catch(e => {
-      console.error("Error al registrar:", e);
-      alert("Error: " + e.message);
-    });
-};
-
-// Login
-window.login = function() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  console.log("Intentando login con:", email);
-
-  if (!email || password.length < 6) {
-    alert("Email válido y contraseña mínimo 6 caracteres");
+  if (!email || !password || password.length < 6 || !email.includes("@") || !email.includes(".")) {
+    alert("Completá los campos correctamente.");
     return;
   }
 
   signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      console.log("Login exitoso");
-      mostrarContenido();
-    })
-    .catch(e => {
-      console.error("Login falló:", e);
-      alert("Error: " + e.message);
+    .then(() => mostrarContenido())
+    .catch((e) => {
+      switch (e.code) {
+        case 'auth/invalid-email':
+          alert("Email inválido.");
+          break;
+        case 'auth/user-not-found':
+          alert("Usuario no encontrado.");
+          break;
+        case 'auth/wrong-password':
+          alert("Contraseña incorrecta.");
+          break;
+        default:
+          alert("Error: " + e.message);
+      }
+    });
+};
+
+window.register = function () {
+  const email = document.getElementById("email")?.value.trim();
+  const password = document.getElementById("password")?.value;
+
+  if (!email || !password || password.length < 6 || !email.includes("@") || !email.includes(".")) {
+    alert("Completá los campos correctamente.");
+    return;
+  }
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => mostrarContenido())
+    .catch((e) => {
+      switch (e.code) {
+        case 'auth/email-already-in-use':
+          alert("Este email ya está registrado.");
+          break;
+        case 'auth/invalid-email':
+          alert("Email inválido.");
+          break;
+        case 'auth/weak-password':
+          alert("Contraseña débil.");
+          break;
+        default:
+          alert("Error: " + e.message);
+      }
     });
 };
 
