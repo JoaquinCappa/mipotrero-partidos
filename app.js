@@ -63,10 +63,13 @@ window.register = function() {
 
 // Mostrar login
 window.mostrarLogin = function() {
-  document.getElementById('login').style.display = 'block';
-  document.getElementById('explorar').style.display = 'none';
-  document.getElementById('crear').style.display = 'none';
-  document.getElementById('mios').style.display = 'none';
+  const login = document.getElementById('login');
+  if (login) login.style.display = 'block';
+
+  ["explorar", "crear", "mios"].forEach(sec => {
+    const el = document.getElementById(sec);
+    if (el) el.style.display = 'none';
+  });
 };
 
 // Logout
@@ -79,7 +82,8 @@ window.logout = function() {
 // Mostrar secciones
 window.showSection = function(id) {
   ["explorar", "crear", "mios"].forEach(sec => {
-    document.getElementById(sec).style.display = sec === id ? "block" : "none";
+    const el = document.getElementById(sec);
+    if (el) el.style.display = sec === id ? "block" : "none";
   });
 };
 
@@ -148,8 +152,10 @@ window.crearPartido = function() {
 // Cargar partidos disponibles
 function cargarPartidos() {
   const lista = document.getElementById("lista-partidos");
-  lista.innerHTML = "";
-
+  if (!lista) {
+    console.error("No existe el contenedor 'lista-partidos'");
+    return;
+  }
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
 
@@ -171,7 +177,7 @@ function cargarPartidos() {
           div.appendChild(btn);
         }
         lista.appendChild(div);
-      })
+      });
     })
     .catch(e => console.error("Error al obtener partidos:", e));
   }
