@@ -47,15 +47,23 @@ window.login = function () {
 };
 
 window.register = function () {
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+
+  console.log("Registro con:", email, password);
+
+  if (!email || password.length < 6) {
+    alert("Por favor ingresa un email válido y una contraseña de al menos 6 caracteres.");
+    return;
+  }
 
   createUserWithEmailAndPassword(auth, email, password)
     .then(() => mostrarContenido())
     .catch(err => alert("Error: " + err.message));
 };
 
-window.mostrarLogin = function() {
+
+window.mostrarLogin = function () {
   document.getElementById('login').style.display = 'block';
   document.getElementById('explorar').style.display = 'none';
   document.getElementById('crear').style.display = 'none';
