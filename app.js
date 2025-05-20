@@ -55,7 +55,7 @@ window.register = function () {
     .then(() => mostrarContenido())
     .catch(err => alert("Error: " + err.message));
 };
-function mostrarLogin() {
+window.mostrarLogin = function() {
   document.getElementById('login').style.display = 'block';
   document.getElementById('explorar').style.display = 'none';
   document.getElementById('crear').style.display = 'none';
